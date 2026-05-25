@@ -1,86 +1,70 @@
 # LeanMass Calculator
 
-## Partie 1 : Présentation du projet
+## Part 1: Project Presentation
 
-### Contexte et objectifs
+### Context and Objectives
 
-L'application **LeanMass Calculator** répond à un besoin concret dans le domaine de la nutrition sportive : offrir à l'utilisateur un outil simple et fiable pour estimer sa masse maigre. Le projet couvre les fonctionnalités suivantes :
+The **LeanMass Calculator** application addresses a concrete need in the field of sports nutrition: providing users with a simple and reliable tool to estimate their lean body mass. The project covers the following features:
 
-- **Authentification sécurisée** : inscription et connexion d'un utilisateur.
-- **Calcul du LBM** : à partir du poids, de la taille et du genre de l'utilisateur, en utilisant la méthode de Boer.
-- **Retour visuel immédiat** : affichage d'une icône et d'un message selon que le résultat est satisfaisant ou non.
-- **Historique des calculs** : consultation et suppression des résultats précédents.
-- **Persistance double** : stockage local via SQLite ou stockage cloud via Firebase Firestore.
-- **Deux variantes d'interface** : développées avec et sans `ViewBinding`.
+- **Secure Authentication**: user registration and login.
+- **LBM Calculation**: based on the user's weight, height, and gender, using the Boer method.
+- **Immediate Visual Feedback**: display of an icon and message depending on whether the result is satisfactory or not.
+- **Calculation History**: view and delete previous results.
+- **Local Persistence**: local storage via SQLite.
+- **Two Interface Variants**: developed with and without `ViewBinding`.
 
-### Formules utilisées (méthode de Boer)
+### Formulas Used (Boer Method)
 
-Le calcul du LBM est effectué selon les formules suivantes, adaptées au genre de l'utilisateur :
+LBM calculation is performed using the following formulas, adapted to the user's gender:
 
-- **Homme :** `LBM = (0.407 × Poids) + (0.267 × Taille) - 19.2`
-- **Femme :** `LBM = (0.252 × Poids) + (0.473 × Taille) - 48.3`
+- **Male:** `LBM = (0.407 × Weight) + (0.267 × Height) - 19.2`
+- **Female:** `LBM = (0.252 × Weight) + (0.473 × Height) - 48.3`
 
-Les normes indicatives utilisées pour l'interprétation du résultat sont :
+The indicative standards used for result interpretation are:
 
-- **Homme :** LBM ≥ 38 kg → Résultat satisfaisant
-- **Femme :** LBM ≥ 24 kg → Résultat satisfaisant
+- **Male:** LBM ≥ 38 kg → Satisfactory result
+- **Female:** LBM ≥ 24 kg → Satisfactory result
 
-Ces seuils sont définis dans un fichier de configuration et peuvent être ajustés facilement.
+These thresholds are defined in a configuration file and can be easily adjusted.
 
 ---
 
-## Partie 2 : Implémentation de l'application
+## Part 2: Application Implementation
 
-### Authentification (Inscription et Connexion)
+### Authentication (Sign Up and Sign In)
 
-L'application propose deux écrans d'authentification : un écran d'inscription (*Sign Up*) et un écran de connexion (*Sign In*). Ces écrans permettent à l'utilisateur de créer un compte et de s'authentifier de manière sécurisée avant d'accéder aux fonctionnalités de calcul.
+The application offers two authentication screens: a Sign Up screen and a Sign In screen. These screens allow the user to create an account and authenticate securely before accessing the calculation features.
 
-#### Écran d'inscription
+#### Sign Up Screen
 
-![Écran d'inscription — Sign Up](images/2_signin.jpeg)
+![Sign Up Screen](images/1_signup.jpeg)
 
-L'écran d'inscription demande à l'utilisateur de saisir ses informations (nom, email, mot de passe). Les données sont validées avant d'être enregistrées dans la base de données locale (SQLite) ou dans Firebase Firestore.
+The Sign Up screen asks the user to enter their information (name, email, password). The data is validated before being saved to the local SQLite database.
 
-#### Écran de connexion
+#### Sign In Screen
 
-![Écran de connexion — Sign In](images/1_signup.jpeg)
+![Sign In Screen](images/2_signin.jpeg)
 
-L'écran de connexion vérifie les identifiants de l'utilisateur et lui donne accès à l'application si les informations saisies correspondent à un compte existant.
+The Sign In screen verifies the user's credentials and grants access to the application if the entered information matches an existing account.
 
-### Calcul du LBM et retour visuel
+### LBM Calculation and Visual Feedback
 
-Une fois connecté, l'utilisateur peut saisir son poids (en kg), sa taille (en cm) et son genre. L'application calcule automatiquement son LBM selon la méthode de Boer et affiche le résultat accompagné d'un retour visuel immédiat.
+Once logged in, the user can enter their weight (in kg), height (in cm), and gender. The application automatically calculates their LBM using the Boer method and displays the result with immediate visual feedback.
 
-#### Résultat satisfaisant
+#### Satisfactory Result
 
-Lorsque la valeur calculée respecte les normes indicatives (LBM ≥ 38 kg pour un homme, LBM ≥ 24 kg pour une femme), l'application affiche une icône de satisfaction et le message *« Résultat satisfaisant »*.
+When the calculated value meets the indicative standards (LBM ≥ 38 kg for a male, LBM ≥ 24 kg for a female), the application displays a satisfaction icon and the message "Satisfactory result".
 
-| Résultat satisfaisant — vue 1 | Résultat satisfaisant — vue 2 |
-|------------------------------|------------------------------|
-| ![Résultat satisfaisant 1](images/3_resultat_satisfisant_1.jpeg) | ![Résultat satisfaisant 2](images/4_resultat_satisfisant.jpeg) |
+**Satisfactory result — view**
 
-#### Résultat à surveiller
+![Satisfactory result 1](images/3_Resultat_satisfisant_1.jpeg)
 
-Lorsque la valeur calculée est inférieure aux normes, l'application affiche une icône d'avertissement et le message *« Résultat à surveiller »*, invitant l'utilisateur à prêter attention à sa composition corporelle.
 
-| Résultat insatisfaisant — vue 1 | Résultat insatisfaisant — vue 2 |
-|-------------------------------|-------------------------------|
-| ![Résultat insatisfaisant 1](images/5_resultat_insatisfisant.jpeg) | ![Résultat insatisfaisant 2](images/6_resultat_insatisfisant.jpeg) |
+#### Result to Monitor
 
-### Implémentation Kotlin — Logique de calcul
+When the calculated value is below the standards, the application displays a warning icon and the message "Result to monitor", inviting the user to pay attention to their body composition.
 
-La logique principale du calcul est encapsulée dans une fonction Kotlin simple et lisible. Voici un extrait représentatif de l'implémentation :
+**Unsatisfactory result — view **
 
-```kotlin
-fun calculerLBM(poids: Double, taille: Double, genre: String): Double {
-    return if (genre == "Homme") {
-        (0.407 * poids) + (0.267 * taille) - 19.2
-    } else {
-        (0.252 * poids) + (0.473 * taille) - 48.3
-    }
-}
+![Unsatisfactory result 1](images/5_Resultat_insatisfisant.jpeg)
 
-fun estSatisfaisant(lbm: Double, genre: String): Boolean {
-    val seuil = if (genre == "Homme") 38.0 else 24.0
-    return lbm >= seuil
-}
